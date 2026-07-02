@@ -118,7 +118,7 @@ Build Tools so it picks the MSVC linker.
 #     C runtime that Rust and rusqlite/sqlite-vec need.
 winget install --id Microsoft.VisualStudio.2022.BuildTools --override "--wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
 
-# 1b. Node.js 20 LTS
+# 1b. Node.js 22 LTS (Jod)
 winget install OpenJS.NodeJS.LTS
 
 # 1c. pnpm 9 (via npm; corepack also works)
@@ -135,7 +135,7 @@ npm install -g @anthropic-ai/claude-code
 Verify:
 
 ```powershell
-node --version    # v20.x
+node --version    # v22.x
 pnpm --version    # 9.x
 rustc --version   # 1.77+
 cl.exe            # should be found on PATH (via VS Developer Prompt or after opening a fresh PowerShell)
@@ -216,8 +216,8 @@ xcode-select --install
 # 1b. Homebrew if not present
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# 1c. Node 20 LTS + pnpm 9
-brew install node@20 pnpm
+# 1c. Node 22 LTS + pnpm 9
+brew install node@22 pnpm
 
 # 1d. Rust stable
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -332,8 +332,8 @@ sudo apt install -y \
   libayatana-appindicator3-dev librsvg2-dev \
   patchelf
 
-# Node 20 via NodeSource
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+# Node 22 via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
 
 # pnpm via npm
