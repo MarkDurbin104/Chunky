@@ -448,11 +448,19 @@ All data is local:
 </section>
 
 <!-- ==================== Download ==================== -->
+<!--
+  Download URLs point at the current preview release. When a new
+  release is cut, either update these URLs or (once v0.1.0 ships as
+  the official "latest" release) swap the base to
+  https://github.com/MarkDurbin104/Chunky/releases/latest/download/…
+  which auto-tracks whatever tag is marked latest.
+-->
 <section id="download" class="section section-alt">
   <h2 class="section-h2">Download Chunky</h2>
   <p class="section-lead">
-    Free, MIT-licensed. Pick the installer for your OS. Download links
-    become active on first tagged release.
+    Free, MIT-licensed. Pick the installer for your OS. Currently
+    <a href="https://github.com/MarkDurbin104/Chunky/releases/tag/v0.1.0-preview2" rel="noopener" target="_blank">v0.1.0-preview2</a> — a
+    prerelease preview build. Not yet code-signed or notarized.
   </p>
 
   <div class="download-grid">
@@ -460,30 +468,51 @@ All data is local:
     <div class="download-card">
       <div class="download-os">Windows</div>
       <p class="download-req">Windows 10 or 11, x64</p>
-      <a class="btn btn-primary btn-block" data-download="windows" aria-disabled="true">Windows installer (.exe)</a>
-      <p class="download-note">NSIS installer, per-user install (no admin needed). WebView2 runtime auto-installed if missing.</p>
+      <a class="btn btn-primary btn-block"
+         href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_x64-setup.exe">
+        Windows installer (.exe)
+      </a>
+      <p class="download-note">NSIS installer, per-user install (no admin needed). WebView2 runtime auto-installed if missing. ~74 MB.</p>
     </div>
 
     <div class="download-card">
       <div class="download-os">macOS</div>
       <p class="download-req">macOS 10.15 Catalina or newer</p>
       <div class="download-row">
-        <a class="btn btn-primary" data-download="macos-arm64" aria-disabled="true">Apple silicon (.dmg)</a>
-        <a class="btn btn-primary" data-download="macos-x64" aria-disabled="true">Intel (.dmg)</a>
+        <a class="btn btn-primary"
+           href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_aarch64.dmg">
+          Apple silicon (.dmg)
+        </a>
+        <a class="btn btn-primary"
+           href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_x64.dmg">
+          Intel (.dmg)
+        </a>
       </div>
-      <a class="btn btn-ghost btn-block btn-sm" data-download="macos-universal" aria-disabled="true">Universal binary (.dmg)</a>
-      <p class="download-note">Right-click → Open on first launch until we notarize.</p>
+      <a class="btn btn-ghost btn-block btn-sm"
+         href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_universal.dmg">
+        Universal binary (.dmg)
+      </a>
+      <p class="download-note">Right-click → Open on first launch — build isn't notarized yet. ~95 MB (arch-specific) / 108 MB (universal).</p>
     </div>
 
     <div class="download-card">
       <div class="download-os">Linux</div>
       <p class="download-req">Ubuntu 22.04+, Fedora 40+, or equivalent</p>
       <div class="download-row">
-        <a class="btn btn-primary" data-download="linux-appimage" aria-disabled="true">AppImage</a>
-        <a class="btn btn-primary" data-download="linux-deb" aria-disabled="true">.deb</a>
-        <a class="btn btn-primary" data-download="linux-rpm" aria-disabled="true">.rpm</a>
+        <a class="btn btn-primary"
+           href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_amd64.AppImage">
+          AppImage
+        </a>
+        <a class="btn btn-primary"
+           href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky_0.1.0_amd64.deb">
+          .deb
+        </a>
+        <a class="btn btn-primary"
+           href="https://github.com/MarkDurbin104/Chunky/releases/download/v0.1.0-preview2/Chunky-0.1.0-1.x86_64.rpm">
+          .rpm
+        </a>
       </div>
-      <p class="download-note">AppImage needs no install. deb/rpm pulls WebKit + GTK deps automatically.</p>
+      <p class="download-note">AppImage needs no install (~169 MB). .deb/.rpm pull WebKit + GTK deps automatically (~91 MB).</p>
     </div>
 
   </div>

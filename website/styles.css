@@ -102,24 +102,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .btn-ghost:hover { background: var(--surface-2); }
 .btn-block { width: 100%; }
 .btn-sm { padding: 7px 14px; font-size: 13px; }
-.btn[aria-disabled="true"] {
-  opacity: 0.75;
-  cursor: not-allowed;
-  position: relative;
-}
-.btn[aria-disabled="true"]::after {
-  content: "coming soon";
-  position: absolute;
-  top: -8px;
-  right: -6px;
-  background: var(--accent);
-  color: #1a1200;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: var(--radius-pill);
-  letter-spacing: 0.03em;
-}
 
 /* ---------- Hero ---------- */
 .hero {
@@ -428,32 +410,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 .js-fade-in {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* ---------- Toast ---------- */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
-  z-index: 100;
-  padding: 12px 18px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-pill);
-  color: var(--text-1);
-  font-size: 13.5px;
-  font-weight: 500;
-  box-shadow: var(--shadow-2);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 200ms ease, transform 200ms ease;
-  max-width: min(92vw, 520px);
-  text-align: center;
-}
-.toast-show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
 /* ---------- Motion preferences ---------- */
