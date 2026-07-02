@@ -85,18 +85,46 @@ jobs:
       - name: Install Node dependencies
         run: pnpm install
 
-      - name: Build Tauri app
+      # Detect whether Apple signing secrets are configured. The env
+      # value is a plain "true" / "false" that later steps can `if:` on.
+      # We can't reference `secrets.*` directly inside step-level `if:`
+      # expressions, so we bounce through a job-level env indirection.
+      - name: Detect Apple signing secrets
+        id: apple_secrets
+        shell: bash
+        run: |
+          if [[ -n "$APPLE_CERT" ]]; then
+            echo "have_cert=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_cert=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
+
+      - name: Build Tauri app (signed macOS)
+        if: runner.os == 'macOS' && steps.apple_secrets.outputs.have_cert == 'true'
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Apple code-signing — set these secrets in your repo if you
-          # want signed macOS bundles. Leave unset for unsigned builds.
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Chunky ${{ github.ref_name }}'
+          releaseBody: 'See CHANGELOG for details.'
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.bundle_args }}
+
+      - name: Build Tauri app (unsigned)
+        if: runner.os != 'macOS' || steps.apple_secrets.outputs.have_cert != 'true'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Chunky ${{ github.ref_name }}'
@@ -145,7 +173,20 @@ jobs:
       - name: Fetch BGE embedding model
         run: bash scripts/fetch-bge-model.sh
 
-      - name: Build universal macOS bundle
+      - name: Detect Apple signing secrets
+        id: apple_secrets
+        shell: bash
+        run: |
+          if [[ -n "$APPLE_CERT" ]]; then
+            echo "have_cert=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_cert=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE }}
+
+      - name: Build universal macOS bundle (signed)
+        if: steps.apple_secrets.outputs.have_cert == 'true'
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -155,6 +196,19 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Chunky ${{ github.ref_name }}'
+          releaseBody: 'See CHANGELOG for details.'
+          releaseDraft: true
+          prerelease: false
+          args: '--target universal-apple-darwin'
+
+      - name: Build universal macOS bundle (unsigned)
+        if: steps.apple_secrets.outputs.have_cert != 'true'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Chunky ${{ github.ref_name }}'
