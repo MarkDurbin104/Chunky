@@ -40,6 +40,9 @@ jobs:
           key: ${{ runner.os }}-cargo-check-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-check-
 
+      - name: Fetch BGE embedding model
+        run: bash scripts/fetch-bge-model.sh
+
       - name: Cargo check
         working-directory: src-tauri
         run: cargo check
@@ -70,6 +73,9 @@ jobs:
             src-tauri/target
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-test-
+
+      - name: Fetch BGE embedding model
+        run: bash scripts/fetch-bge-model.sh
 
       - name: Run Rust tests
         working-directory: src-tauri
