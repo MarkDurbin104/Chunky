@@ -12,12 +12,23 @@
 //! file through `bridge.officeConvertLegacy`; on success it feeds the
 //! returned OOXML bytes back through the existing OOXML pipeline.
 
-use crate::shell_bridge::{append_audit, RequestEnvelope, ResponseEnvelope};
+use crate::shell_bridge::{RequestEnvelope, ResponseEnvelope};
+
+// The Windows-only implementation body needs these imports; scoping them
+// under cfg keeps non-Windows targets from warning "unused import".
+#[cfg(target_os = "windows")]
+use crate::shell_bridge::append_audit;
+#[cfg(target_os = "windows")]
 use base64::Engine;
+#[cfg(target_os = "windows")]
 use serde_json::json;
+#[cfg(target_os = "windows")]
 use std::fs;
+#[cfg(target_os = "windows")]
 use std::path::PathBuf;
+#[cfg(target_os = "windows")]
 use tauri::Manager;
+#[cfg(target_os = "windows")]
 use uuid::Uuid;
 
 /// Tauri command. See module-level docs.
@@ -226,16 +237,11 @@ exit 0
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped());
-    // Suppress the PowerShell console window — the Tauri host is
-    // a GUI binary, so Windows would otherwise allocate a fresh
-    // console for every legacy-Office conversion and pop it on
-    // screen. `CREATE_NO_WINDOW` = 0x08000000.
-    #[cfg(target_os = "windows")]
-    #[allow(unsafe_code)]
-    {
-        use std::os::windows::process::CommandExt;
-        cmd.creation_flags(0x0800_0000);
-    }
+    // Suppress the PowerShell console window — Tauri host is a GUI
+    // binary, so Windows would otherwise allocate a fresh console per
+    // conversion. tokio's Command has a Windows-only `creation_flags`
+    // shim; no std trait import needed.
+    cmd.creation_flags(0x0800_0000);
 
     let timeout = tokio::time::Duration::from_secs(60);
     let output = match tokio::time::timeout(timeout, cmd.output()).await {

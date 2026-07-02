@@ -21,7 +21,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::Manager;
-use uuid::Uuid;
 
 /// `CREATE_NO_WINDOW` — when we spawn a child process from the
 /// Tauri host (which itself runs as a Windows GUI subsystem
@@ -34,12 +33,9 @@ use uuid::Uuid;
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 #[cfg(target_os = "windows")]
-#[allow(unsafe_code)]
 fn no_console_window(cmd: &mut tokio::process::Command) {
-    use std::os::windows::process::CommandExt;
-    // tokio's `Command` re-exports `creation_flags` through its
-    // own surface on Windows; the import above is for the `std`
-    // `CommandExt` trait that adds it to the underlying type.
+    // tokio::process::Command has its own `creation_flags` shim on
+    // Windows — no std trait import needed.
     cmd.creation_flags(CREATE_NO_WINDOW);
 }
 

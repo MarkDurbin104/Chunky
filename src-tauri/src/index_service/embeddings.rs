@@ -176,7 +176,7 @@ impl Embedder {
     /// suitable for cosine similarity (`vec_cosine_distance` in
     /// sqlite-vec is `1 - cosine_sim`).
     pub fn embed(&self, text: &str) -> Result<Vec<f32>, EmbeddingError> {
-        let mut inner = self
+        let inner = self
             .inner
             .lock()
             .map_err(|e| EmbeddingError::Inference(format!("mutex: {e}")))?;

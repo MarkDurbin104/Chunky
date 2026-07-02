@@ -1,6 +1,6 @@
 use crate::startup_manager::api::v1::events::StartupEvent;
 use crate::startup_manager::api::v1::types::{StartupLifecycle, StartupMode};
-use crate::startup_manager::internal::state::{StateMachine, StateTransitionError};
+use crate::startup_manager::internal::state::StateMachine;
 use std::sync::{Arc, Mutex};
 
 /// Event publisher callback type for startup events.

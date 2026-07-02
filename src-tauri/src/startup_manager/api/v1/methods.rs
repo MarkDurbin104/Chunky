@@ -175,10 +175,3 @@ fn current_timestamp_ms() -> u64 {
         .unwrap_or(0)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // These tests use mock/stub orchestrator for basic envelope testing
-    // Integration tests with real orchestrator belong in a separate test file
-}

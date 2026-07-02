@@ -294,8 +294,6 @@ fn json_string_array(value: &serde_json::Value, key: &str) -> Vec<String> {
 pub fn write_edges_for_node(
     index: &Arc<IndexService>,
     id: &str,
-    node_type: &str,
-    body_md: &str,
     jsonld: &serde_json::Value,
 ) {
     // style-guides — asymmetric. The consumer's body lists `referenceIds`
@@ -402,13 +400,13 @@ pub fn rebuild_edges_from_kb(index: &Arc<IndexService>, kb_dir: &std::path::Path
                 _ => continue,
             };
             let draft = record.get("draft").cloned().unwrap_or_else(|| serde_json::json!({}));
-            let draft_type = draft.get("type").and_then(|v| v.as_str()).unwrap_or("");
-            if draft_type.is_empty() { continue }
-            let body_md_raw = draft.get("bodyMd").and_then(|v| v.as_str()).unwrap_or("");
+            // Skip records without a `draft.type` — they're malformed / partial.
+            let has_type = draft.get("type").and_then(|v| v.as_str()).map_or(false, |t| !t.is_empty());
+            if !has_type { continue }
             let jsonld_str = draft.get("jsonld").and_then(|v| v.as_str()).unwrap_or("{}");
             let jsonld_value: serde_json::Value =
                 serde_json::from_str(jsonld_str).unwrap_or(serde_json::Value::Null);
-            write_edges_for_node(index, &id, draft_type, body_md_raw, &jsonld_value);
+            write_edges_for_node(index, &id, &jsonld_value);
             n += 1;
         }
     }
@@ -763,7 +761,7 @@ pub fn upsert_draft(
     // B-018: re-derive edges from the freshly-saved body.
     let jsonld_value: serde_json::Value =
         serde_json::from_str(&jsonld_str).unwrap_or(serde_json::Value::Null);
-    write_edges_for_node(&index, &draft_id, &draft_type, body_md_raw, &jsonld_value);
+    write_edges_for_node(&index, &draft_id, &jsonld_value);
 
     let response = json!({
         "draftId": draft_id,
@@ -946,7 +944,7 @@ pub fn promote_draft(
     // B-018: re-derive edges after the canonical write.
     let jsonld_value: serde_json::Value =
         serde_json::from_str(&jsonld_str).unwrap_or(serde_json::Value::Null);
-    write_edges_for_node(&index, &draft_id, &node_type, body_md_raw, &jsonld_value);
+    write_edges_for_node(&index, &draft_id, &jsonld_value);
 
     let duration_ms = start.elapsed().as_millis() as u64;
     ResponseEnvelope::ok(

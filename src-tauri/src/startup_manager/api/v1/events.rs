@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Startup v1 event types for pub/sub and audit logging.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum StartupEvent {
     /// Initialization started.
     InitializeStarted {

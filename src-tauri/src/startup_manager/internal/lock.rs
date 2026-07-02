@@ -1,5 +1,5 @@
 use std::fs::{File, OpenOptions};
-use std::io::{self, Result as IoResult};
+use std::io::Result as IoResult;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
@@ -78,43 +78,56 @@ impl StartupLock {
             std::fs::create_dir_all(parent).map_err(|_| LockError::IoError)?;
         }
 
-        // Try to open/create the lock file with exclusive access
-        let file = match OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(&self.lock_file)
+        // Windows: exclusive create-new semantics. If another process
+        // already holds the file, create_new fails → treat as held.
+        // Unix path uses create+flock instead so multiple processes can
+        // open the file but only one holds the advisory lock.
+        #[cfg(windows)]
         {
-            Ok(f) => f,
-            Err(_) => return Err(LockError::IoError),
-        };
+            match OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&self.lock_file)
+            {
+                Ok(f) => {
+                    self.file = Some(f);
+                    let _ = self.write_timestamp();
+                    Ok(())
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                    // Could be a stale lock — allow the caller's
+                    // recover_stale path to reclaim it.
+                    Err(LockError::LockHeld)
+                }
+                Err(_) => Err(LockError::IoError),
+            }
+        }
 
-        // Attempt advisory lock (flock)
-        if self.try_flock(&file) {
-            // Lock acquired successfully
-            self.file = Some(file);
-            // Write current timestamp for staleness detection
-            let _ = self.write_timestamp();
-            Ok(())
-        } else {
-            // Lock held by another process
-            Err(LockError::LockHeld)
+        #[cfg(unix)]
+        {
+            let file = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(&self.lock_file)
+                .map_err(|_| LockError::IoError)?;
+            if self.try_flock(&file) {
+                self.file = Some(file);
+                let _ = self.write_timestamp();
+                Ok(())
+            } else {
+                Err(LockError::LockHeld)
+            }
         }
     }
 
-    /// Attempt advisory lock using flock (Unix) or LockFile (Windows)
+    /// Attempt advisory lock via flock. Unix only — Windows path in
+    /// `try_acquire` uses `create_new` for exclusion instead.
     #[cfg(unix)]
     fn try_flock(&self, file: &File) -> bool {
         use std::os::unix::io::AsRawFd;
         unsafe {
             libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) == 0
         }
-    }
-
-    #[cfg(windows)]
-    fn try_flock(&self, _file: &File) -> bool {
-        // On Windows, use file locking via OpenOptions or fallback to file existence check
-        // For now, use a simple file existence heuristic
-        !self.lock_file.exists() || self.is_stale(Duration::from_secs(120)).unwrap_or(false)
     }
 
     /// Write the current timestamp to the lock file for staleness detection.
@@ -168,16 +181,17 @@ impl StartupLock {
 
     /// Release the lock, if held.
     pub fn release(&mut self) -> Result<(), LockError> {
-        if let Some(file) = self.file.take() {
-            // Unlock (Unix uses LOCK_UN, Windows releases automatically on close)
+        // `file` is used on unix to LOCK_UN via flock, and always dropped at
+        // end of scope (which closes the fd on both platforms — Windows
+        // releases the lock automatically on close).
+        if let Some(_file) = self.file.take() {
             #[cfg(unix)]
             {
                 use std::os::unix::io::AsRawFd;
                 unsafe {
-                    libc::flock(file.as_raw_fd(), libc::LOCK_UN);
+                    libc::flock(_file.as_raw_fd(), libc::LOCK_UN);
                 }
             }
-            // File is closed when it goes out of scope
 
             // Remove lock file after release
             let _ = std::fs::remove_file(&self.lock_file);
@@ -207,22 +221,29 @@ impl Drop for StartupLock {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
     use std::fs;
+
+    /// Platform-portable test directory. Uses the system temp dir + a
+    /// process-unique subfolder so parallel test runs don't collide.
+    fn test_dir() -> PathBuf {
+        let mut d = std::env::temp_dir();
+        d.push(format!("chunky_lock_test_{}", std::process::id()));
+        let _ = fs::create_dir_all(&d);
+        d
+    }
 
     #[test]
     fn test_lock_new() {
-        let lock = StartupLock::new("/tmp/test.lock");
+        let path = test_dir().join("test_new.lock");
+        let lock = StartupLock::new(&path);
         assert!(!lock.is_held());
-        assert_eq!(lock.path(), Path::new("/tmp/test.lock"));
+        assert_eq!(lock.path(), path.as_path());
     }
 
     #[test]
     fn test_lock_acquire_release() {
-        let test_dir = "/tmp/shirika_lock_test";
-        let _ = fs::create_dir_all(test_dir);
-        let lock_path = format!("{}/lock1.lock", test_dir);
-        
+        let lock_path = test_dir().join("lock1.lock");
+
         let mut lock = StartupLock::new(&lock_path);
         assert!(!lock.is_held());
 
@@ -240,9 +261,7 @@ mod tests {
 
     #[test]
     fn test_lock_already_held() {
-        let test_dir = "/tmp/shirika_lock_test";
-        let _ = fs::create_dir_all(test_dir);
-        let lock_path = format!("{}/lock2.lock", test_dir);
+        let lock_path = test_dir().join("lock2.lock");
 
         let mut lock = StartupLock::new(&lock_path);
         assert!(lock.acquire(Duration::from_secs(1)).is_ok());
@@ -258,9 +277,7 @@ mod tests {
 
     #[test]
     fn test_lock_exclusive() {
-        let test_dir = "/tmp/shirika_lock_test";
-        let _ = fs::create_dir_all(test_dir);
-        let lock_path = format!("{}/lock3.lock", test_dir);
+        let lock_path = test_dir().join("lock3.lock");
 
         let mut lock1 = StartupLock::new(&lock_path);
         let mut lock2 = StartupLock::new(&lock_path);
@@ -280,9 +297,7 @@ mod tests {
 
     #[test]
     fn test_stale_lock_detection() {
-        let test_dir = "/tmp/shirika_lock_test";
-        let _ = fs::create_dir_all(test_dir);
-        let lock_path = format!("{}/lock4.lock", test_dir);
+        let lock_path = test_dir().join("lock4.lock");
 
         // Create a lock file manually
         let _ = fs::File::create(&lock_path);
@@ -300,9 +315,7 @@ mod tests {
 
     #[test]
     fn test_stale_lock_recovery() {
-        let test_dir = "/tmp/shirika_lock_test";
-        let _ = fs::create_dir_all(test_dir);
-        let lock_path = format!("{}/lock5.lock", test_dir);
+        let lock_path = test_dir().join("lock5.lock");
 
         // Create an old lock file
         let _ = fs::File::create(&lock_path);
@@ -323,7 +336,7 @@ mod tests {
 
     #[test]
     fn test_release_without_acquire() {
-        let mut lock = StartupLock::new("/tmp/test_release.lock");
+        let mut lock = StartupLock::new(test_dir().join("test_release.lock"));
         assert!(matches!(lock.release(), Err(LockError::NotHeld)));
     }
 }
