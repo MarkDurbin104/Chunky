@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capabilities","local":true,"windows":["main"],"permissions":["core:webview:allow-internal-toggle-devtools","core:webview:allow-set-webview-zoom"]}}

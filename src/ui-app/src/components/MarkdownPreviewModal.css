@@ -1,0 +1,238 @@
+/*
+ * Modal styles for MarkdownPreviewModal. Goal: show the rendered
+ * markdown the way the recipient will see it (document-like layout)
+ * while keeping the chrome out of the way. Backdrop dims the rest
+ * of the app, the modal itself fills most of the viewport and
+ * scrolls internally so long specs don't push the action bar off
+ * screen.
+ */
+
+.md-preview-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 4000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 2.5rem;
+}
+
+.md-preview-modal {
+  flex: 1 1 auto;
+  max-width: 1100px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.md-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  flex: 0 0 auto;
+}
+
+.md-preview-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.md-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.md-preview-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  border-radius: 4px;
+}
+.md-preview-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.md-preview-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.5rem 2rem;
+  background: var(--bg-card);
+}
+
+/*
+ * Document-like rendered markdown. Constrained to a comfortable reading
+ * width centred in the body, with typography spaced like a print spec —
+ * h1 huge with a thick rule under, code blocks framed, tables striped.
+ */
+.md-preview-rendered {
+  max-width: 880px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.md-preview-rendered h1,
+.md-preview-rendered h2,
+.md-preview-rendered h3,
+.md-preview-rendered h4,
+.md-preview-rendered h5,
+.md-preview-rendered h6 {
+  margin: 1.4em 0 0.6em;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+.md-preview-rendered h1 {
+  font-size: 2rem;
+  border-bottom: 2px solid var(--border-default);
+  padding-bottom: 0.3em;
+  margin-top: 0;
+}
+.md-preview-rendered h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 0.2em;
+}
+.md-preview-rendered h3 { font-size: 1.2rem; }
+.md-preview-rendered h4 { font-size: 1rem; }
+.md-preview-rendered h5 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.md-preview-rendered h6 { font-size: 0.85rem; color: var(--text-muted); }
+
+.md-preview-rendered p {
+  margin: 0.6em 0;
+}
+
+.md-preview-rendered ul,
+.md-preview-rendered ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+.md-preview-rendered li {
+  margin: 0.2em 0;
+}
+.md-preview-rendered li > p {
+  margin: 0.2em 0;
+}
+
+.md-preview-rendered blockquote {
+  margin: 0.8em 0;
+  padding: 0.4em 1em;
+  border-left: 4px solid var(--accent-soft-border);
+  background: var(--accent-soft-bg);
+  color: var(--text-primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.md-preview-rendered code {
+  font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--bg-elevated);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  border: 1px solid var(--border-default);
+}
+.md-preview-rendered pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  margin: 0.8em 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.md-preview-rendered pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 1em;
+}
+
+.md-preview-rendered table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8em 0;
+  font-size: 0.9rem;
+}
+.md-preview-rendered th,
+.md-preview-rendered td {
+  border: 1px solid var(--border-default);
+  padding: 0.45em 0.75em;
+  vertical-align: top;
+}
+.md-preview-rendered thead th {
+  background: var(--bg-elevated);
+  text-align: left;
+  font-weight: 600;
+}
+.md-preview-rendered tbody tr:nth-child(even) td {
+  background: var(--bg-hover);
+}
+
+.md-preview-rendered img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  border: 1px solid var(--border-default);
+  margin: 0.8em 0;
+  background: var(--bg-card);
+}
+
+.md-preview-rendered a {
+  color: var(--text-link);
+  text-decoration: underline;
+}
+.md-preview-rendered a:hover {
+  text-decoration: none;
+}
+
+.md-preview-rendered hr {
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin: 1.5em 0;
+}
+
+/* GFM task list checkboxes — keep them aligned with text. */
+.md-preview-rendered input[type="checkbox"] {
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+
+.md-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.25rem;
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}

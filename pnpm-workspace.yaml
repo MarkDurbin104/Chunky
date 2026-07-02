@@ -1,0 +1,5 @@
+packages:
+  - 'src/ui-app'
+
+onlyBuiltDependencies:
+  - esbuild

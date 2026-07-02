@@ -1,0 +1,24 @@
+{
+  "name": "chunky",
+  "version": "0.1.0",
+  "description": "Chunky: a local-first desktop knowledge graph with AI chat.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test",
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "tauri": "pnpm --filter @chunky/ui-app exec tauri",
+    "dev": "pnpm --filter @chunky/ui-app exec tauri dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.1.9"
+  }
+}

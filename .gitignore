@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+dist-release/
+target/
+
+# Tauri
+src-tauri/target/
+src/ui-app/dist/
+src/ui-app/tsconfig.tsbuildinfo
+src/ui-app/tsconfig.node.tsbuildinfo
+
+# TypeScript build outputs from vite config compilation
+src/ui-app/vite.config.d.ts
+src/ui-app/vite.config.js
+
+# WebView2 runtime DLL — fetched at build time by scripts/fetch-webview2-loader.ps1
+src-tauri/embedded/runtime/WebView2Loader.dll
+
+# BGE embedding model (~130 MB, exceeds GitHub's 100 MB per-file limit).
+# Fetched at build time by scripts/fetch-bge-model.{ps1,sh} from the
+# `models-v1` release asset. tokenizer.json + config.json are small
+# and stay in-tree.
+src-tauri/embedded/models/bge-small-en-v1.5/model.safetensors
+
+# Database and runtime data
+semantic.db
+semantic.db-wal
+semantic.db-shm
+
+# KB drafts (volatile; not committed)
+drafts/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.local
+
+# Test output
+coverage/
+playwright-report/
+test-results/

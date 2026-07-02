@@ -1,0 +1,110 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 12px;
+  min-width: 220px;
+  height: 100%;
+  background: var(--sidebar-bg, #f4f4f6);
+  border-right: 1px solid var(--border-subtle, #e2e2e6);
+  box-sizing: border-box;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 120ms ease;
+}
+.sidebar-brand:hover {
+  background: var(--sidebar-hover, rgba(0, 0, 0, 0.05));
+}
+
+.sidebar-brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+  flex: none;
+}
+
+.sidebar-brand-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-secondary, #3f3f46);
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.sidebar-link:hover {
+  background: var(--sidebar-hover, rgba(0, 0, 0, 0.05));
+  color: var(--text-primary, #1a1a1a);
+}
+.sidebar-link--active {
+  background: var(--sidebar-active, rgba(59, 130, 246, 0.12));
+  color: var(--accent, #2563eb);
+  font-weight: 500;
+}
+
+.sidebar-link-icon {
+  font-size: 16px;
+  line-height: 1;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.sidebar-theme {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+}
+.sidebar-theme-btn {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  padding: 6px 0;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-2, #52525b);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.sidebar-theme-btn:hover { background: var(--sidebar-hover, rgba(0, 0, 0, 0.05)); }
+.sidebar-theme-btn.on {
+  background: var(--surface, #fff);
+  color: var(--text-1, #18181b);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}

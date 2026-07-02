@@ -1,0 +1,48 @@
+.intent-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intent-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.intent-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.intent-select:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+.intent-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--border-focus-ring);
+}
+
+.intent-select:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.intent-description {
+  padding: 8px 12px;
+  background-color: var(--accent-soft-bg);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-link);
+  line-height: 1.4;
+}

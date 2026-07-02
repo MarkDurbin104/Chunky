@@ -1,0 +1,146 @@
+/*
+ * Themed wrapper styles for the BlockNoteEditor component. Lives next
+ * to the .tsx and is imported by it so the styles ship wherever the
+ * editor is used (DocumentEditor, EpicEditor, ReferenceCreate /
+ * ReferenceReader, RequirementCreate, and HomeWorkPane).
+ *
+ * Previously these rules were only in `pages/styles/RequirementCreate.css`
+ * which is page-scoped — when the editor mounted on the home page the
+ * background didn't theme because that stylesheet wasn't imported.
+ */
+
+.blocknote-editor-container {
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  min-height: 300px;
+  background: var(--bg-card);
+  overflow: auto;
+  /* Make this the containing block for BlockNote's floating
+     portal (table handles, side menu, formatting toolbar,
+     slash menu). The portal is re-parented into this div on
+     mount — see the `useEffect` in BlockNoteEditor.tsx that
+     moves `editor.portalElement` here from <body>. The
+     `position: relative` + `isolation: isolate` pair ensures
+     the portal's children — which Floating UI positions with
+     `transform` — stay clipped to this box rather than
+     painting over the app header. */
+  position: relative;
+  isolation: isolate;
+}
+
+/*
+ * Citation-chip scroll-to target pulse. When a chat citation
+ * lands the user on a doc page with `?q=…`, the
+ * `useScrollToQuery` hook scrolls the matching block into view
+ * and adds this class for ~2.5s so the user sees what was cited
+ * rather than just landing on a static page. Soft accent ring +
+ * background tint that fades back to neutral.
+ */
+.citation-scroll-target {
+  animation: citation-pulse 2.4s ease-out;
+  border-radius: 4px;
+}
+@keyframes citation-pulse {
+  0% {
+    background-color: var(--accent-soft-bg);
+    box-shadow: 0 0 0 4px var(--accent-soft-border);
+  }
+  40% {
+    background-color: var(--accent-soft-bg);
+    box-shadow: 0 0 0 4px var(--accent-soft-border);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/*
+ * Per-doc typography seeded from a reference document's LLM-inferred
+ * `headingFont`. The Epic editor wrapper sets `--doc-heading-font`
+ * as an inline custom property on `.home-work-editor-drop`; we map
+ * that down into BlockNote's heading nodes here so heading text
+ * inherits the source doc's font family. Body font is set directly
+ * via `font-family` on the wrapper and inherits through the editor
+ * content naturally — only headings need this explicit hop because
+ * BlockNote applies its own font-family on `.bn-block-content`
+ * heading variants that would otherwise win the cascade.
+ *
+ * The fallback chain keeps the rule a no-op when the var is unset
+ * (no Epic-seeded typography), so default app rendering doesn't
+ * change.
+ */
+.bn-block-content[data-content-type="heading"],
+.bn-block-content[data-content-type="heading"] *,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  font-family: var(--doc-heading-font, inherit);
+}
+
+/*
+ * Drop-target indicator. Rendered as a fixed-position horizontal line
+ * spanning the width of the block the dropped item will land next to.
+ * Updated continuously by the editor host's onDragOver handler, which
+ * calls `editorRef.current.showDropIndicatorAt(x, y)`; hidden on drop
+ * and dragleave. The short CSS transition smooths the line as the
+ * mouse moves between blocks so it doesn't flicker. Pointer-events
+ * none so it doesn't swallow the drop event itself.
+ */
+.bn-drop-indicator {
+  position: fixed;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent-primary);
+  box-shadow:
+    0 0 0 2px var(--accent-soft-border),
+    0 1px 4px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  z-index: 1000;
+  transition: top 70ms ease-out, left 70ms ease-out, width 70ms ease-out;
+}
+
+.blocknote-editor-error {
+  padding: 1rem 1.25rem;
+  background: var(--error-bg);
+  color: var(--error);
+  border: 1px solid var(--error-border);
+  border-radius: 4px;
+}
+
+/*
+ * BlockNote token overrides.
+ *
+ * BlockNote v0.50 with @blocknote/mantine paints its surfaces from
+ * `--bn-colors-*` variables defined on `.bn-root[data-color-scheme]`.
+ * Its built-in dark palette is near-black; on a slate-blue page that
+ * shows up as a noticeably different "black" rectangle.
+ *
+ * We re-route those variables to the same `--bg-card` / `--text-primary`
+ * tokens the rest of the app uses, so the editor surface visually
+ * matches the surrounding panel in both themes. Our top-level theme
+ * tokens already flip via `:root[data-theme]`, so a single override
+ * block covers both light and dark.
+ *
+ * Reference:
+ * https://www.blocknotejs.org/docs/styling-theming/themes
+ */
+.bn-root,
+.bn-root[data-color-scheme="light"],
+.bn-root[data-color-scheme="dark"] {
+  --bn-colors-editor-background: var(--bg-card);
+  --bn-colors-editor-text: var(--text-primary);
+  --bn-colors-menu-background: var(--bg-elevated);
+  --bn-colors-menu-text: var(--text-primary);
+  --bn-colors-tooltip-background: var(--bg-elevated);
+  --bn-colors-tooltip-text: var(--text-primary);
+  --bn-colors-hovered-background: var(--bg-hover);
+  --bn-colors-hovered-text: var(--text-primary);
+  --bn-colors-selected-background: var(--accent-soft-bg);
+  --bn-colors-selected-text: var(--text-link);
+  --bn-colors-disabled-background: var(--bg-disabled);
+  --bn-colors-disabled-text: var(--text-muted);
+  --bn-colors-shadow: rgba(0, 0, 0, 0.18);
+  --bn-colors-border: var(--border-default);
+  --bn-colors-side-menu: var(--text-muted);
+}

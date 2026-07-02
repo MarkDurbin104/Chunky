@@ -1,0 +1,220 @@
+/* ============================================================
+   Browse page — restyled for the redesign.
+   Uses the new card / pill / search tokens. Pre-existing class
+   names are preserved so the TSX continues to work.
+   ============================================================ */
+
+.browse-page {
+  max-width: 1080px; margin: 0 auto;
+  padding: 28px 32px 56px;
+  color: var(--text-1);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.browse-header { margin-bottom: 22px; }
+.browse-header h1 {
+  margin: 0;
+  font-size: var(--fs-h1); font-weight: var(--weight-heading);
+  letter-spacing: var(--heading-tracking);
+  line-height: 1.12;
+}
+.browse-header p {
+  margin: 8px 0 18px;
+  color: var(--text-2);
+  font-size: var(--fs-md);
+  max-width: 64ch;
+  line-height: 1.55;
+}
+.browse-header p strong { color: var(--text-1); }
+
+.browse-controls {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.browse-controls select {
+  height: var(--control-h);
+  background: var(--surface); color: var(--text-1);
+  border: 1px solid var(--border-2); border-radius: var(--radius);
+  padding: 0 30px 0 12px; font-size: var(--fs-md); font-family: inherit;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23828A94' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; cursor: pointer;
+}
+.browse-controls select:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.browse-search {
+  flex: 1 1 280px;
+  height: var(--control-h);
+  padding: 0 12px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  font-size: var(--fs-md); font-family: inherit;
+  background: var(--surface); color: var(--text-1);
+}
+.browse-search::placeholder { color: var(--text-faint); }
+.browse-search:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.browse-loading,
+.browse-error,
+.browse-empty {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  color: var(--text-2);
+}
+.browse-error {
+  background: var(--red-soft-bg);
+  color: var(--red-fg);
+  border-color: var(--red-soft-border);
+}
+
+.browse-list {
+  list-style: none; padding: 0; margin: 18px 0 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.browse-item {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--card-shadow);
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+.browse-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.browse-item-delete {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+  border-radius: var(--radius);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  z-index: 2;
+  transition: background var(--dur), color var(--dur);
+}
+.browse-item-delete:hover {
+  background: var(--red-soft-bg); color: var(--red-fg);
+}
+
+.browse-item-link {
+  display: flex; flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.browse-item-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+.browse-item-title {
+  font-size: 14.5px; font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-1);
+}
+
+.browse-item-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-left: auto;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browse-item-meta {
+  display: flex; gap: 14px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+}
+
+.browse-item-path { font-family: var(--font-mono); word-break: break-all; }
+
+.browse-item-snippet {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+  padding: 2px 0 0;
+}
+.browse-item-snippet mark {
+  background: var(--amber-soft-bg);
+  color: var(--amber-fg);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+.browse-item-score {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  background: var(--surface-3);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Type / kind / state chips ------------------------------------------- */
+.type-chip {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: lowercase;
+  background: var(--surface-3);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.type-chip.type-requirement,
+.type-chip.type-annotation {
+  background: var(--primary-soft-bg);
+  color: var(--primary-soft-fg);
+  border-color: var(--primary-soft-border);
+}
+
+.kind-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+}
+.kind-chip.kind-draft {
+  background: var(--amber-soft-bg);
+  color: var(--amber-fg);
+  border-color: var(--amber-soft-border);
+}
+.kind-chip.kind-canonical {
+  background: var(--green-soft-bg);
+  color: var(--green-fg);
+  border-color: var(--green-soft-border);
+}

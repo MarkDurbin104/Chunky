@@ -1,0 +1,404 @@
+/* ============================================================
+   PMScratch — Design tokens (post-redesign)
+
+   Data-attribute driven on <html>:
+     data-theme="light|dark|auto"   (auto → follows OS via @media)
+     data-look="precision|editorial" (default precision)
+     data-accent="calm|red"          (default calm)
+     data-density="comfortable|compact" (default comfortable)
+
+   The runtime helper at src/ui-app/src/lib/theme.ts sets data-theme.
+   data-look / data-accent / data-density default via :root below;
+   they can be overridden by html attribute for live tweaking.
+
+   Two namespaces of tokens live here:
+     • The post-redesign primary set: --bg, --surface*, --chrome*,
+       --text-1/2/muted/faint, --border*, --primary*, --red/--green/
+       --amber, --radius*, --shadow*, density + layout + motion.
+     • Backwards-compatible aliases for the pre-redesign names that
+       the existing component CSS still references (--bg-page,
+       --bg-card, --bg-hover, --text-primary, --text-secondary,
+       --text-link, --border-default, --border-focus, --accent-primary,
+       --accent-soft-bg, --success, --error, --warning, etc.). These
+       all resolve to the new tokens so the redesign is the source of
+       truth — and existing pages render with the new look until they
+       are individually ported.
+
+   IBM Plex Sans (UI) + IBM Plex Mono (data) are imported here.
+   Self-host the fonts for offline deployment.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ---------- Base: LIGHT · PRECISION · CALM · COMFORTABLE ---------- */
+:root,
+:root[data-theme="light"] {
+  /* ── typography ─────────────────────────────────────────── */
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-body: 13.5px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 19px;
+  --fs-h3: 15px;
+  --fs-h2: 21px;
+  --fs-h1: 27px;
+  --lh-body: 1.55;
+
+  --weight-heading: 600;
+  --heading-tracking: -0.01em;
+
+  /* ── surfaces ──────────────────────────────────────────── */
+  --bg: #F4F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #FAFBFC;
+  --surface-3: #EEF0F3;
+  --surface-inset: #F3F5F7;
+
+  /* ── sidebar / chrome ─────────────────────────────────── */
+  /* In light mode the sidebar uses a neutral light surface so it
+     reads as part of the page rather than a separate "black chrome"
+     panel. Dark mode (and auto-resolves-to-dark) keep the original
+     black-chrome register — see the dark and prefers-color-scheme
+     blocks below for those overrides. */
+  --chrome-bg: #EEF0F3;
+  --chrome-bg-2: #FAFBFC;
+  --chrome-fg: #15191E;
+  --chrome-fg-muted: #49515B;
+  --chrome-fg-dim: #828A94;
+  --chrome-border: #E3E6EA;
+  --chrome-active-bg: rgba(15,19,30,0.06);
+  --chrome-active-fg: #15191E;
+
+  /* ── text ──────────────────────────────────────────────── */
+  --text-1: #15191E;
+  --text-2: #49515B;
+  --text-muted: #828A94;
+  --text-faint: #A6AEB8;
+  --text-on-primary: #FFFFFF;
+  --link: var(--primary);
+
+  /* ── borders ──────────────────────────────────────────── */
+  --border: #E3E6EA;
+  --border-2: #D5D9DF;
+  --border-strong: #B9BFC7;
+  --focus-ring: color-mix(in srgb, var(--primary) 40%, transparent);
+
+  /* ── primary — calm steel (light) ─────────────────────── */
+  --primary: #2D5DA8;
+  --primary-hover: #254E8F;
+  --primary-active: #1F4480;
+  --primary-soft-bg: #EAF1F9;
+  --primary-soft-border: #C6D8EE;
+  --primary-soft-fg: #214E8E;
+
+  /* ── semantic ─────────────────────────────────────────── */
+  --red: #D42235;
+  --red-hover: #B61C2D;
+  --red-soft-bg: #FBE9EB;
+  --red-soft-border: #F3C6CC;
+  --red-fg: #A01828;
+  --green: #2E7D43;
+  --green-soft-bg: #E7F3EA;
+  --green-soft-border: #BFE0C8;
+  --green-fg: #246636;
+  --amber: #B26A00;
+  --amber-soft-bg: #FBF0DD;
+  --amber-soft-border: #EDD5A8;
+  --amber-fg: #8A5300;
+  --select: #FFC505;
+  --select-ink: #1A1407;
+  --info: #0B5EA8;
+
+  /* ── radii — precision = crisp ─────────────────────────── */
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  /* ── elevation — precision: hairline-led ──────────────── */
+  --shadow-1: 0 1px 0 rgba(16,22,30,0.04);
+  --shadow-2: 0 2px 6px rgba(16,22,30,0.08);
+  --shadow-pop: 0 8px 28px rgba(16,22,30,0.16);
+  --card-border-w: 1px;
+  --card-shadow: var(--shadow-1);
+
+  /* ── density ──────────────────────────────────────────── */
+  --gap: 16px;
+  --gap-sm: 10px;
+  --pad-card: 20px;
+  --control-h: 36px;
+  --row-pad-y: 11px;
+  --row-pad-x: 14px;
+  --nav-pad-y: 9px;
+  --density-fs-adjust: 0px;
+
+  /* ── layout ───────────────────────────────────────────── */
+  --sidebar-w: 222px;
+  --topbar-h: 56px;
+  --statusbar-h: 28px;
+
+  /* ── motion ───────────────────────────────────────────── */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur: 160ms;
+
+  /* ── citation chip (mono pill, primary-soft palette) ───── */
+  --citation-bg: var(--primary-soft-bg);
+  --citation-border: var(--primary-soft-border);
+  --citation-text: var(--primary-soft-fg);
+  --citation-stale: var(--text-faint);
+
+  /* ── code / scrollbar (kept for code blocks) ─────────── */
+  --code-bg: var(--surface-3);
+  --code-text: var(--text-1);
+  --scrollbar-thumb: color-mix(in srgb, var(--text-muted) 40%, transparent);
+  --scrollbar-track: transparent;
+
+  /* ── shadows aliases used by legacy CSS ─────────────── */
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+
+  color-scheme: light;
+
+  /* ============================================================
+     Backwards-compatible aliases for the pre-redesign token set.
+     Every old name resolves to a new token so the existing pages
+     pick up the new look without code changes.
+     ============================================================ */
+  --bg-page:           var(--bg);
+  --bg-panel:          var(--surface-2);
+  --bg-card:           var(--surface);
+  --bg-elevated:       var(--surface-3);
+  --bg-input:          var(--surface);
+  --bg-hover:          var(--surface-3);
+  --bg-disabled:       var(--surface-2);
+
+  --text-primary:      var(--text-1);
+  --text-secondary:    var(--text-2);
+  --text-on-accent:    var(--text-on-primary);
+  --text-link:         var(--primary);
+
+  --border-default:    var(--border);
+  --border-subtle:     var(--surface-3);
+  --border-focus:      var(--primary);
+  --border-focus-ring: var(--focus-ring);
+
+  --accent-primary:         var(--primary);
+  --accent-primary-hover:   var(--primary-hover);
+  --accent-primary-active:  var(--primary-active);
+  --accent-soft-bg:         var(--primary-soft-bg);
+  --accent-soft-border:     var(--primary-soft-border);
+
+  --success:        var(--green);
+  --success-bg:     var(--green-soft-bg);
+  --success-border: var(--green-soft-border);
+  --warning:        var(--amber);
+  --warning-bg:     var(--amber-soft-bg);
+  --warning-border: var(--amber-soft-border);
+  --error:          var(--red);
+  --error-bg:       var(--red-soft-bg);
+  --error-border:   var(--red-soft-border);
+}
+
+/* ---------- THEME · DARK (explicit) ---------- */
+:root[data-theme="dark"] {
+  --bg: #0E1216;
+  --surface: #161B21;
+  --surface-2: #1A2027;
+  --surface-3: #222932;
+  --surface-inset: #11161B;
+
+  --chrome-bg: #0A0D10;
+  --chrome-bg-2: #11161B;
+  --chrome-fg: #E7EAEE;
+  --chrome-fg-muted: #828B95;
+  --chrome-fg-dim: #545C66;
+  --chrome-border: rgba(255,255,255,0.06);
+  --chrome-active-bg: rgba(255,255,255,0.09);
+  --chrome-active-fg: #FFFFFF;
+
+  --text-1: #ECEFF2;
+  --text-2: #B2BAC4;
+  --text-muted: #7C8590;
+  --text-faint: #5C646E;
+
+  --border: #262D36;
+  --border-2: #313945;
+  --border-strong: #404954;
+
+  --primary: #4E88D6;
+  --primary-hover: #6299DF;
+  --primary-active: #79AAEA;
+  --primary-soft-bg: rgba(78,136,214,0.16);
+  --primary-soft-border: rgba(78,136,214,0.38);
+  --primary-soft-fg: #9CC1EF;
+
+  --red: #E84A57;
+  --red-hover: #F26571;
+  --red-soft-bg: rgba(232,74,87,0.15);
+  --red-soft-border: rgba(232,74,87,0.40);
+  --red-fg: #F0939B;
+  --green: #46B062;
+  --green-soft-bg: rgba(70,176,98,0.16);
+  --green-soft-border: rgba(70,176,98,0.38);
+  --green-fg: #84D29A;
+  --amber: #E0A33A;
+  --amber-soft-bg: rgba(224,163,58,0.16);
+  --amber-soft-border: rgba(224,163,58,0.38);
+  --amber-fg: #EDC178;
+  --info: #5AA0E0;
+
+  --shadow-1: 0 1px 0 rgba(0,0,0,0.4);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.5);
+  --shadow-pop: 0 10px 34px rgba(0,0,0,0.6);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+
+  color-scheme: dark;
+}
+
+/* ---------- Auto mode: follow OS via media query ---------- */
+:root[data-theme="auto"] {
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --bg: #0E1216;
+    --surface: #161B21;
+    --surface-2: #1A2027;
+    --surface-3: #222932;
+    --surface-inset: #11161B;
+
+    --chrome-bg: #0A0D10;
+    --chrome-bg-2: #11161B;
+    --chrome-fg: #E7EAEE;
+    --chrome-fg-muted: #828B95;
+    --chrome-fg-dim: #545C66;
+    --chrome-border: rgba(255,255,255,0.06);
+    --chrome-active-bg: rgba(255,255,255,0.09);
+    --chrome-active-fg: #FFFFFF;
+
+    --text-1: #ECEFF2;
+    --text-2: #B2BAC4;
+    --text-muted: #7C8590;
+    --text-faint: #5C646E;
+
+    --border: #262D36;
+    --border-2: #313945;
+    --border-strong: #404954;
+
+    --primary: #4E88D6;
+    --primary-hover: #6299DF;
+    --primary-active: #79AAEA;
+    --primary-soft-bg: rgba(78,136,214,0.16);
+    --primary-soft-border: rgba(78,136,214,0.38);
+    --primary-soft-fg: #9CC1EF;
+
+    --red: #E84A57;
+    --red-hover: #F26571;
+    --red-soft-bg: rgba(232,74,87,0.15);
+    --red-soft-border: rgba(232,74,87,0.40);
+    --red-fg: #F0939B;
+    --green: #46B062;
+    --green-soft-bg: rgba(70,176,98,0.16);
+    --green-soft-border: rgba(70,176,98,0.38);
+    --green-fg: #84D29A;
+    --amber: #E0A33A;
+    --amber-soft-bg: rgba(224,163,58,0.16);
+    --amber-soft-border: rgba(224,163,58,0.38);
+    --amber-fg: #EDC178;
+    --info: #5AA0E0;
+
+    --shadow-1: 0 1px 0 rgba(0,0,0,0.4);
+    --shadow-2: 0 2px 8px rgba(0,0,0,0.5);
+    --shadow-pop: 0 10px 34px rgba(0,0,0,0.6);
+    --shadow-sm: var(--shadow-1);
+    --shadow-md: var(--shadow-2);
+  }
+}
+
+/* ---------- LOOK · EDITORIAL (opt-in via data-look="editorial") ---------- */
+:root[data-look="editorial"] {
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+
+  --fs-h1: 30px;
+  --fs-h2: 22px;
+  --heading-tracking: -0.018em;
+  --lh-body: 1.6;
+
+  --gap: 20px;
+  --gap-sm: 12px;
+  --pad-card: 24px;
+  --row-pad-y: 13px;
+
+  --border: #EAECEF;
+  --border-2: #DEE1E6;
+  --card-border-w: 1px;
+  --card-shadow: var(--shadow-2);
+  --shadow-1: 0 1px 2px rgba(16,22,30,0.05);
+  --shadow-2: 0 6px 20px rgba(16,22,30,0.09), 0 1px 3px rgba(16,22,30,0.06);
+
+  --primary: #1F7A6B;
+  --primary-hover: #196658;
+  --primary-active: #14564A;
+  --primary-soft-bg: #E6F3F0;
+  --primary-soft-border: #BFE0D8;
+  --primary-soft-fg: #176456;
+
+  --sidebar-w: 230px;
+}
+:root[data-look="editorial"][data-theme="dark"] {
+  --border: #232A33;
+  --border-2: #2C343E;
+  --shadow-2: 0 8px 26px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.4);
+
+  --primary: #34A38C;
+  --primary-hover: #45B49D;
+  --primary-active: #5BC4AE;
+  --primary-soft-bg: rgba(52,163,140,0.16);
+  --primary-soft-border: rgba(52,163,140,0.38);
+  --primary-soft-fg: #74CBB8;
+}
+
+/* ---------- ACCENT · RED (opt-in override) ---------- */
+:root[data-accent="red"] {
+  --primary: #E11D2E;
+  --primary-hover: #C4172A;
+  --primary-active: #A81324;
+  --primary-soft-bg: #FCEAEC;
+  --primary-soft-border: #F4C7CD;
+  --primary-soft-fg: #B01525;
+}
+:root[data-accent="red"][data-theme="dark"] {
+  --primary: #F0414F;
+  --primary-hover: #F65A66;
+  --primary-active: #FB7079;
+  --primary-soft-bg: rgba(240,65,79,0.16);
+  --primary-soft-border: rgba(240,65,79,0.40);
+  --primary-soft-fg: #F59199;
+}
+
+/* ---------- DENSITY · COMPACT (opt-in) ---------- */
+:root[data-density="compact"] {
+  --gap: 12px;
+  --gap-sm: 8px;
+  --pad-card: 15px;
+  --control-h: 31px;
+  --row-pad-y: 7px;
+  --row-pad-x: 11px;
+  --nav-pad-y: 7px;
+  --density-fs-adjust: -0.5px;
+  --topbar-h: 50px;
+}
+
+/* ---------- Page-level surface ---------- */
+html, body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+}

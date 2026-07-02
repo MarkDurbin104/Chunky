@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <!-- WebKit / WebView needs JIT for JS. -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <!-- BlockNote/React/etc. build scripts at runtime; the webview loads
+         them into a JITted heap. -->
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <!-- User needs to drag files from Finder onto the drop zones. -->
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    <!-- MCP stdio server + Claude CLI spawn — outbound network for LLM API
+         calls; localhost 5173 in dev. -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+  </dict>
+</plist>

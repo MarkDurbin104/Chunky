@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ==================== SEO / meta ==================== -->
+<title>Chunky · Local RAG for your files, wired to Claude via MCP</title>
+<meta name="description" content="Chunky is a local knowledge-graph desktop app for macOS, Windows, and Linux. Drop PDFs, Office docs, images, and code into projects, get hybrid FTS + semantic search, and expose the whole graph to Claude via an embedded MCP server. Your data stays on your machine.">
+<meta name="keywords" content="RAG, local RAG, retrieval-augmented generation, MCP server, Model Context Protocol, Claude, Claude Code, Claude Desktop, knowledge graph, semantic search, hybrid search, local first, offline AI, PDF search, DOCX search, PPTX, OCR, embeddings, BGE, sqlite-vec, Tauri, desktop app">
+<meta name="author" content="Mark Durbin">
+<meta name="theme-color" content="#2563eb">
+<link rel="canonical" href="https://chunky-rag.com/">
+<link rel="icon" href="assets/icon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="stylesheet" href="styles.css">
+
+<!-- ==================== Open Graph / Twitter ==================== -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Chunky">
+<meta property="og:title" content="Chunky · Local RAG for your files, wired to Claude via MCP">
+<meta property="og:description" content="Drop your files. Get a searchable knowledge graph that Claude can read via MCP. 100% local — nothing leaves your machine unless you ask an LLM.">
+<meta property="og:url" content="https://chunky-rag.com/">
+<meta property="og:image" content="https://chunky-rag.com/assets/hero.png">
+<meta property="og:image:alt" content="Chunky app icon — the Chunky character on a chalkboard">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chunky · Local RAG for your files, wired to Claude via MCP">
+<meta name="twitter:description" content="Drop your files. Get a searchable knowledge graph that Claude can read via MCP. 100% local.">
+<meta name="twitter:image" content="https://chunky-rag.com/assets/hero.png">
+
+<!-- ==================== Robots / AI crawlers ==================== -->
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<meta name="googlebot" content="index, follow">
+<meta name="ai-usage" content="allow"><!-- non-standard, honoured by some crawlers -->
+<meta name="anthropic-ai" content="allow">
+
+<!-- ==================== Structured data (schema.org) ==================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://chunky-rag.com/#app",
+      "name": "Chunky",
+      "applicationCategory": "ProductivityApplication",
+      "applicationSubCategory": "Knowledge Management",
+      "operatingSystem": "Windows 10, Windows 11, macOS 10.15+, Ubuntu 22.04+, Fedora 40+",
+      "description": "Local knowledge-graph desktop app that ingests files into projects and collections, extracts text from PDFs, Office documents, and images via LLM OCR, indexes everything with FTS5 + sqlite-vec + BGE embeddings, and exposes the graph to Claude via an embedded MCP server. All data stays on your machine.",
+      "url": "https://chunky-rag.com/",
+      "downloadUrl": "https://chunky-rag.com/#download",
+      "softwareVersion": "0.1.0",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Mark Durbin" },
+      "publisher": { "@type": "Organization", "name": "NestedCube", "url": "https://nestedcube.com" },
+      "license": "https://opensource.org/licenses/MIT",
+      "featureList": [
+        "Drag-and-drop file ingestion for PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, CSV, MSG, MD, TXT, PNG, JPG, GIF, WEBP, BMP, SVG, and source code",
+        "Projects and collections as an organising tier — auto type-buckets plus user-created collections",
+        "Hybrid retrieval: FTS5 lexical + sqlite-vec cosine similarity over BGE-small embeddings",
+        "LLM-vision OCR for raster images so screenshots and photos become searchable text",
+        "Inline rendering of images embedded in Office documents",
+        "Per-project chat with Claude, scoped to that project's assets",
+        "Embedded MCP server auto-registered with Claude Code and Claude Desktop",
+        "100% local — nothing leaves the machine except LLM API calls the user initiates"
+      ],
+      "screenshot": "https://chunky-rag.com/assets/hero.png"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://chunky-rag.com/#website",
+      "url": "https://chunky-rag.com/",
+      "name": "Chunky",
+      "publisher": { "@id": "https://chunky-rag.com/#app" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Chunky?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Chunky is a local desktop app that turns a folder full of documents, slides, spreadsheets, emails, and images into a searchable knowledge graph, and exposes that graph to Claude through an MCP server. Everything runs on your machine — no cloud database, no server, no telemetry."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Chunky work with Claude?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "On every launch, Chunky writes an entry into Claude Desktop and Claude Code CLI configs registering itself as an MCP server. Claude then has read-only access to nine tools: search_nodes, get_node, get_nodes, get_neighbors, list_assets_in_project, list_nodes_by_type, list_node_images, get_image, and summarise_artifacts."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What data leaves my machine?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The knowledge graph, the SQLite index, the embedding model, and all extracted text stay entirely on your machine. The only outbound traffic is (a) LLM API calls when you use the chat feature or when Chunky's OCR pass sends a raster image to Claude for text extraction, and (b) the one-time model download from HuggingFace on first launch of the source build. There is no telemetry."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What file formats does Chunky ingest?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PDF, DOCX and DOC (Word), PPTX and PPT (PowerPoint), XLSX and XLS (Excel), CSV, MSG (Outlook), Markdown, plain text, images (PNG, JPG, GIF, WEBP, BMP, SVG), and dozens of source-code extensions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which operating systems does Chunky support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Windows 10 and 11, macOS 10.15 Catalina or newer (Apple silicon and Intel), and Linux (Ubuntu 22.04, Fedora 40, and derivatives). Installers are provided as NSIS setup, DMG, AppImage, .deb, and .rpm."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Chunky's retrieval work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Chunky combines lexical search (SQLite FTS5 with BM25 scoring) and semantic search (sqlite-vec cosine similarity over 384-dimensional BGE-small-en-v1.5 embeddings), fusing the two into a single ranked result. Every node's summary and keyPoints are cached so search results can often answer a question without a follow-up fetch."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Machine-readable summary for agent crawlers that read comments or
+     <script type="text/markdown"> blocks. Keeps the human page clean. -->
+<script type="text/markdown" id="agent-summary">
+# Chunky
+
+Chunky is a local knowledge-graph desktop app.
+
+## What it does
+Ingests files (PDF, DOCX, PPTX, XLSX, CSV, MSG, MD, TXT, images, code)
+into local projects and collections. Extracts text (including LLM OCR
+for raster images), indexes with SQLite FTS5 + sqlite-vec BGE
+embeddings, exposes the graph to Claude via an embedded MCP server.
+
+## MCP server
+- Server name: `chunky`
+- Transport: stdio
+- Auto-registered in `~/.claude.json` and Claude Desktop config on
+  Chunky launch
+- 9 tools, all read-only:
+  1. `search_nodes(query, types?, limit?)` — hybrid FTS + semantic
+  2. `get_node(id, offset?, length?, full?)` — read one node with paging
+  3. `get_nodes(ids[])` — bulk read up to 50 nodes
+  4. `get_neighbors(id, depth?, limit?)` — walk the edge graph
+  5. `list_assets_in_project(projectId, limit?)` — enumerate a project
+  6. `list_nodes_by_type(type?, projectId?, limit?)` — filter by type
+  7. `list_node_images(id)` — enumerate images in a node with OCR text
+  8. `get_image(nodeId, imageId? | index?)` — fetch one image + OCR
+  9. `summarise_artifacts(nodeIds[], prompt?, maxTokens?)` —
+     LLM-summarise a set of nodes (host build only)
+
+## Data storage
+All data is local:
+- Windows: `%APPDATA%\com.chunky.desktop\`
+- macOS: `~/Library/Application Support/com.chunky.desktop/`
+- Linux: `~/.local/share/com.chunky.desktop/`
+
+## Repository
+- Source: https://github.com/MarkDurbin104/Chunky
+- Docs: https://github.com/MarkDurbin104/Chunky/blob/main/README.md
+- Releases: https://github.com/MarkDurbin104/Chunky/releases
+</script>
+
+</head>
+<body>
+
+<!-- ==================== Nav ==================== -->
+<header class="site-header">
+  <a href="#" class="brand">
+    <img src="assets/icon.png" alt="" class="brand-icon">
+    <span class="brand-name">Chunky</span>
+    <span class="brand-tag">RAG for your files</span>
+  </a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="#features">Features</a>
+    <a href="#mcp">MCP</a>
+    <a href="#use-cases">Use cases</a>
+    <a href="#download">Download</a>
+    <a href="https://github.com/MarkDurbin104/Chunky" rel="noopener" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero">
+  <div class="hero-copy">
+    <h1>Local RAG for your files. Claude reads it via MCP.</h1>
+    <p class="lead">
+      Drop your PDFs, slide decks, spreadsheets, emails, screenshots, and
+      code onto Chunky. Get a searchable knowledge graph — organised into
+      projects and collections, indexed with hybrid FTS + semantic
+      retrieval, and wired straight to Claude Desktop and Claude Code
+      through an embedded MCP server.
+    </p>
+    <p class="lead lead-tight">
+      Everything runs on your machine. No cloud database. No telemetry.
+      No lock-in.
+    </p>
+    <div class="hero-cta">
+      <a href="#download" class="btn btn-primary">Download</a>
+      <a href="https://github.com/MarkDurbin104/Chunky" class="btn btn-ghost" rel="noopener" target="_blank">View on GitHub</a>
+    </div>
+    <ul class="hero-meta">
+      <li>MIT-licensed</li>
+      <li>Windows · macOS · Linux</li>
+      <li>Built on Tauri 2 + Rust</li>
+    </ul>
+  </div>
+  <div class="hero-art">
+    <img src="assets/hero.png" alt="Chunky character on a chalkboard covered in interconnected nodes" loading="eager">
+  </div>
+</section>
+
+<!-- ==================== Features ==================== -->
+<section id="features" class="section">
+  <h2 class="section-h2">What Chunky does</h2>
+  <div class="feature-grid">
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">📥</div>
+      <h3>Universal ingest</h3>
+      <p>
+        Drag any supported file onto a project. Chunky extracts text from
+        PDFs, DOCX / DOC, PPTX / PPT, XLSX / XLS, CSV, Outlook MSG,
+        Markdown, TXT, images (PNG, JPG, GIF, WEBP, BMP, SVG), and
+        dozens of source-code formats.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">👁️</div>
+      <h3>OCR for images</h3>
+      <p>
+        Screenshots, photos of whiteboards, diagram captures — Chunky
+        pipes raster images through an LLM vision pass, so the extracted
+        text becomes searchable alongside the source pixels.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">🧩</div>
+      <h3>Projects and collections</h3>
+      <p>
+        Assets auto-bucket by type (Documents, Slides, PDFs, Spreadsheets,
+        Emails, Images, Code, Links). Create custom named collections and
+        drag assets between them — the drag targets accept both files
+        from disk and existing assets.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">🔎</div>
+      <h3>Hybrid retrieval</h3>
+      <p>
+        Every search fuses FTS5 lexical BM25 with sqlite-vec cosine
+        similarity over BGE-small-en-v1.5 embeddings, weighted into a
+        single ranked list. Cached summaries and keyPoints answer most
+        questions without a follow-up fetch.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">🤖</div>
+      <h3>MCP server, auto-configured</h3>
+      <p>
+        On every launch Chunky registers itself as an MCP server with
+        Claude Desktop, Claude Desktop MSIX, and Claude Code CLI —
+        writing to the right config path on each OS. Claude gets nine
+        read-only tools for exploring your graph.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">🖼️</div>
+      <h3>Inline document rendering</h3>
+      <p>
+        Open a PowerPoint or PDF and Chunky renders the extracted text
+        and images together in the order they appeared. Every image
+        keeps its OCR text attached so agents can reason about
+        screenshots as first-class content.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">💬</div>
+      <h3>Per-project chat</h3>
+      <p>
+        Each project has its own chat session pre-scoped to that
+        project's assets. Ask questions and the model calls Chunky's MCP
+        tools with the right projectId already in context.
+      </p>
+    </article>
+
+    <article class="feature">
+      <div class="feature-icon" aria-hidden="true">🔒</div>
+      <h3>Local by default</h3>
+      <p>
+        Data lives in your OS app-data directory. No sync, no telemetry,
+        no analytics beacon. The only outbound network traffic is LLM
+        API calls that you initiate (chat, OCR) and a one-time embedding
+        model download on first source-build.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ==================== MCP details ==================== -->
+<section id="mcp" class="section section-alt">
+  <h2 class="section-h2">Built for agent access</h2>
+  <p class="section-lead">
+    Chunky exposes its knowledge graph via Model Context Protocol (MCP)
+    — the emerging standard for AI clients to discover and call
+    external tools. Everything is read-only, so agents can freely
+    explore without risk to your data.
+  </p>
+
+  <div class="mcp-grid">
+    <div class="mcp-block">
+      <h3>Nine read-only tools</h3>
+      <ul class="tool-list">
+        <li><code>search_nodes</code> — hybrid FTS + semantic search across the graph</li>
+        <li><code>get_node</code> — read one node with byte paging for long bodies</li>
+        <li><code>get_nodes</code> — bulk read up to 50 nodes in a single call</li>
+        <li><code>get_neighbors</code> — walk the edge graph 1–2 hops out</li>
+        <li><code>list_assets_in_project</code> — enumerate a project's assets</li>
+        <li><code>list_nodes_by_type</code> — filter by node type, optionally by project</li>
+        <li><code>list_node_images</code> — list images inside a node with OCR text</li>
+        <li><code>get_image</code> — fetch image bytes plus OCR, inline for vision clients</li>
+        <li><code>summarise_artifacts</code> — LLM-summarise a set of nodes</li>
+      </ul>
+    </div>
+
+    <div class="mcp-block">
+      <h3>Zero-config integration</h3>
+      <p>
+        Chunky writes the MCP entry into whichever of these it finds on
+        launch:
+      </p>
+      <ul class="tool-list">
+        <li>Claude Desktop (Windows standard install)</li>
+        <li>Claude Desktop MSIX sandbox (Windows Store install)</li>
+        <li>Claude Desktop (macOS)</li>
+        <li>Claude Desktop (Linux)</li>
+        <li>Claude Code CLI (any OS with <code>~/.claude.json</code>)</li>
+      </ul>
+      <p>
+        Tool names get pre-authorised in Claude Code's
+        <code>permissions.allow</code> so the agent doesn't prompt for
+        approval on every call.
+      </p>
+    </div>
+  </div>
+
+  <div class="mcp-example">
+    <h3>Example agent invocation</h3>
+    <p>Ask Claude:</p>
+    <blockquote>
+      <em>"What slides in my product-strategy project mention Azure?
+      Give me the exact wording and which deck each came from."</em>
+    </blockquote>
+    <p>
+      Claude calls <code>search_nodes({query: "Azure", types:
+      ["slides"]})</code>, gets back ranked slide hits with title +
+      snippet + summary, and answers with citations — all without
+      Chunky ever sending your files anywhere.
+    </p>
+  </div>
+</section>
+
+<!-- ==================== Use cases ==================== -->
+<section id="use-cases" class="section">
+  <h2 class="section-h2">Example use cases</h2>
+
+  <div class="use-case-grid">
+
+    <article class="use-case">
+      <h3>Product / research knowledge base</h3>
+      <p>
+        Drop a year of customer-research transcripts, competitor slide
+        decks, spec docs, and Miro exports into one Chunky project.
+        Ask Claude "what did customers say about pricing?" — hybrid
+        search surfaces the exact quotes with source attribution.
+      </p>
+    </article>
+
+    <article class="use-case">
+      <h3>Screenshot-heavy documentation</h3>
+      <p>
+        A shared drive full of Confluence exports and screenshots of
+        legacy admin panels? OCR turns every image into indexed text.
+        Search "click the export button in the admin UI" and Chunky
+        finds the screenshots, not just prose that mentions them.
+      </p>
+    </article>
+
+    <article class="use-case">
+      <h3>Sales enablement collateral</h3>
+      <p>
+        Import every case study, pitch deck, one-pager, and email
+        template. Group them into collections by industry. Give Claude
+        Code the MCP tool and let it draft account-specific
+        proposals grounded in your actual collateral.
+      </p>
+    </article>
+
+    <article class="use-case">
+      <h3>Legal / compliance discovery</h3>
+      <p>
+        Ingest thousands of PDFs and Outlook MSG files under NDA on an
+        air-gapped laptop. Nothing ever leaves the machine unless you
+        explicitly send a snippet to an LLM. Perfect for regulated
+        environments where cloud RAG is a non-starter.
+      </p>
+    </article>
+
+    <article class="use-case">
+      <h3>Personal second brain</h3>
+      <p>
+        Web bookmarks, PDFs from arXiv, meeting notes, photos of book
+        margins — all under one roof, all searchable, all yours. Chunky
+        replaces the Notion / Obsidian / bespoke-script stack most
+        knowledge workers cobble together.
+      </p>
+    </article>
+
+    <article class="use-case">
+      <h3>Codebase companion</h3>
+      <p>
+        Ingest a project's docs, RFCs, ADRs, and source. Then let
+        Claude Code query it through MCP while pair-programming:
+        <em>"before I write this middleware, what did we decide about
+        error envelopes in the auth service?"</em>
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ==================== Download ==================== -->
+<section id="download" class="section section-alt">
+  <h2 class="section-h2">Download Chunky</h2>
+  <p class="section-lead">
+    Free, MIT-licensed. Pick the installer for your OS. Download links
+    become active on first tagged release.
+  </p>
+
+  <div class="download-grid">
+
+    <div class="download-card">
+      <div class="download-os">Windows</div>
+      <p class="download-req">Windows 10 or 11, x64</p>
+      <a class="btn btn-primary btn-block" data-download="windows" aria-disabled="true">Windows installer (.exe)</a>
+      <p class="download-note">NSIS installer, per-user install (no admin needed). WebView2 runtime auto-installed if missing.</p>
+    </div>
+
+    <div class="download-card">
+      <div class="download-os">macOS</div>
+      <p class="download-req">macOS 10.15 Catalina or newer</p>
+      <div class="download-row">
+        <a class="btn btn-primary" data-download="macos-arm64" aria-disabled="true">Apple silicon (.dmg)</a>
+        <a class="btn btn-primary" data-download="macos-x64" aria-disabled="true">Intel (.dmg)</a>
+      </div>
+      <a class="btn btn-ghost btn-block btn-sm" data-download="macos-universal" aria-disabled="true">Universal binary (.dmg)</a>
+      <p class="download-note">Right-click → Open on first launch until we notarize.</p>
+    </div>
+
+    <div class="download-card">
+      <div class="download-os">Linux</div>
+      <p class="download-req">Ubuntu 22.04+, Fedora 40+, or equivalent</p>
+      <div class="download-row">
+        <a class="btn btn-primary" data-download="linux-appimage" aria-disabled="true">AppImage</a>
+        <a class="btn btn-primary" data-download="linux-deb" aria-disabled="true">.deb</a>
+        <a class="btn btn-primary" data-download="linux-rpm" aria-disabled="true">.rpm</a>
+      </div>
+      <p class="download-note">AppImage needs no install. deb/rpm pulls WebKit + GTK deps automatically.</p>
+    </div>
+
+  </div>
+
+  <p class="download-alt">
+    Or build from source:
+    <a href="https://github.com/MarkDurbin104/Chunky#build-from-source" rel="noopener" target="_blank">detailed per-OS instructions on GitHub</a>.
+  </p>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <div class="brand">
+        <img src="assets/icon.png" alt="" class="brand-icon">
+        <span class="brand-name">Chunky</span>
+      </div>
+      <p class="footer-tag">Local RAG for your files. Wired to Claude via MCP.</p>
+    </div>
+    <div>
+      <h4>Learn</h4>
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#mcp">MCP tools</a></li>
+        <li><a href="#use-cases">Use cases</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Get</h4>
+      <ul>
+        <li><a href="#download">Download</a></li>
+        <li><a href="https://github.com/MarkDurbin104/Chunky/releases" rel="noopener" target="_blank">Releases</a></li>
+        <li><a href="https://github.com/MarkDurbin104/Chunky" rel="noopener" target="_blank">Source</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Build with</h4>
+      <ul>
+        <li>Tauri 2</li>
+        <li>Rust · candle</li>
+        <li>SQLite · sqlite-vec</li>
+        <li>BGE-small-en-v1.5</li>
+      </ul>
+    </div>
+  </div>
+  <p class="footer-copy">
+    © 2026 <a href="https://nestedcube.com" rel="noopener" target="_blank">nestedcube.com</a>. MIT licensed.
+    <span aria-hidden="true">·</span>
+    chunky-rag.com
+  </p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+/* ============================================================
+   Settings page styles — re-skinned for the redesign.
+   The page markup (settings-page / llm-section / llm-grid / theme-toggle /
+   llm-actions etc.) is preserved; this file re-maps those classes onto
+   the new token system + card look.
+   ============================================================ */
+
+.settings-page {
+  /* The parent .main is overflow:hidden, so this page must own its
+     scroll container. flex:1 + min-height:0 let it absorb available
+     height and overflow vertically when content grows. */
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 32px 56px;
+  display: flex; flex-direction: column; gap: var(--gap);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.settings-header {
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 6px;
+}
+.settings-header > div:first-child { min-width: 0; flex: 1; }
+.settings-header h1 {
+  font-size: var(--fs-h1); font-weight: var(--weight-heading);
+  letter-spacing: var(--heading-tracking);
+  margin: 0; line-height: 1.12;
+}
+.settings-header p {
+  color: var(--text-2);
+  font-size: var(--fs-md);
+  margin: 8px 0 0; max-width: 64ch;
+  line-height: 1.55;
+}
+.settings-header p code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+}
+.settings-save-row { display: flex; gap: 10px; align-items: center; flex: none; }
+.settings-saved { color: var(--green-fg); font-size: 12.5px; }
+.settings-err   { color: var(--red-fg);   font-size: 12.5px; }
+
+/* Each card = .llm-section */
+.llm-section {
+  background: var(--surface);
+  border: var(--card-border-w) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  padding: var(--pad-card);
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.llm-section-header { display: flex; flex-direction: column; gap: 6px; }
+.llm-section-header h2 {
+  font-size: var(--fs-h3); font-weight: 600;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.llm-section-header p {
+  color: var(--text-2);
+  font-size: var(--fs-md);
+  margin: 0; max-width: 64ch;
+  line-height: 1.5;
+}
+
+/* Field grid */
+.llm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+@media (max-width: 720px) {
+  .llm-grid { grid-template-columns: 1fr; }
+}
+.llm-row { display: flex; flex-direction: column; gap: 6px; }
+
+/* The .llm-grid emits <label> Caption <div.llm-row> ... </div> </label>,
+   so the label is the field caption + wrapper. Flex-column it so the
+   caption sits above the input instead of inline. */
+.llm-grid > label {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+}
+.llm-row input,
+.llm-row select,
+.llm-row textarea {
+  height: var(--control-h);
+  background: var(--surface); color: var(--text-1);
+  border: 1px solid var(--border-2); border-radius: var(--radius);
+  padding: 0 12px; font-size: var(--fs-md); font-family: inherit;
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+.llm-row select {
+  appearance: none; padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23828A94' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; cursor: pointer;
+}
+.llm-row textarea { height: auto; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+.llm-row input:focus,
+.llm-row select:focus,
+.llm-row textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.llm-hint { font-size: 11.5px; color: var(--text-muted); }
+.llm-row .btn-link { align-self: flex-start; }
+
+.llm-add-model {
+  display: flex; gap: 8px; align-items: end;
+  padding-top: 10px;
+}
+.llm-add-model input { flex: 1; }
+
+.llm-actions {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 4px; flex-wrap: wrap;
+}
+.llm-test-pending { color: var(--text-2); font-size: 12.5px; }
+.llm-test-ok      { color: var(--green-fg); font-size: 12.5px; }
+.llm-test-err     { color: var(--red-fg); font-size: 12.5px; }
+
+.llm-warning,
+.llm-info {
+  padding: 11px 13px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  border: 1px solid;
+  display: flex; gap: 9px; align-items: flex-start;
+}
+.llm-warning {
+  background: var(--amber-soft-bg);
+  border-color: var(--amber-soft-border);
+  color: var(--amber-fg);
+}
+.llm-info {
+  background: var(--primary-soft-bg);
+  border-color: var(--primary-soft-border);
+  color: var(--primary-soft-fg);
+}
+
+/* Theme segmented control — re-skinned to match the prototype's .seg. */
+.theme-toggle {
+  display: inline-flex; padding: 3px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  gap: 3px; align-self: flex-start;
+}
+.theme-toggle button {
+  border: 0; background: transparent;
+  color: var(--text-2); font-size: 13px; font-weight: 500;
+  padding: 6px 16px;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: background var(--dur), color var(--dur);
+  font-family: inherit;
+}
+.theme-toggle button.theme-toggle-active {
+  background: var(--surface); color: var(--text-1); box-shadow: var(--shadow-1);
+}
+
+/* Reused .btn classes are defined in App.css; .btn-link inherits the
+   link colour token from theme.css. */
+.btn-link { color: var(--link); }
+
+/* Modal scaffolding (Add custom supplier). Re-skinned to match the
+   global .scrim / .modal pattern; the Settings page emits its own
+   markup so we cannot just swap to the new shell classes — the
+   pre-existing selectors below take the redesign tokens directly. */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(10,14,18,0.5);
+  z-index: 1000;
+  display: grid; place-items: center;
+  padding: 24px;
+}
+html[data-theme="dark"] .modal-backdrop { background: rgba(0,0,0,0.62); }
+
+.modal {
+  width: min(520px, 94vw); max-height: 85vh; overflow-y: auto;
+  background: var(--surface); color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: var(--shadow-pop);
+}
+.modal h2 { margin: 0; font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.01em; }
+.modal label {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+}
+.modal label input,
+.modal label select,
+.modal label textarea {
+  height: var(--control-h);
+  background: var(--surface); color: var(--text-1);
+  border: 1px solid var(--border-2); border-radius: var(--radius);
+  padding: 0 12px; font-size: var(--fs-md); font-family: inherit;
+}
+.modal label input:focus,
+.modal label select:focus,
+.modal label textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
